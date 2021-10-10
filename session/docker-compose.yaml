@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: admin
+      PGDATA: /var/lib/postgresql-novolume/data
+      POSTGRES_DB: accounts
+    volumes:
+      - ./deployments/postgres/001-init.sql:/docker-entrypoint-initdb.d/001-init.sql
+    ports:
+      - "5432:5432"
+  service:
+    build:
+      context: .
+    environment:
+      DATABASE_PASSWORD: admin
+      SERVICE_PORT: 3000
+      SERVICE_SECRET: secret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
