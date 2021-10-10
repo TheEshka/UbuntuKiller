@@ -1,4 +1,15 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE table accounts (
+    id serial PRIMARY KEY,
+    login TEXT NOT NULL,
+    password TEXT NOT NULL
+)
+
+INSERT INTO accounts(id, login, password) VALUES
+(1, 'service-library', crypt('libpass', gen_salt('bf'))),
+(2, 'service-gateway', crypt('gatewaypass', gen_salt('bf')))
 
 CREATE table genres (
     id serial PRIMARY KEY,
