@@ -1,6 +1,7 @@
 package main
 
 import (
+	"book/internal/handler/auth"
 	"book/internal/handler/author"
 	"book/internal/handler/book"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/antelman107/net-wait-go/wait"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
 	"github.com/kelseyhightower/envconfig"
@@ -19,6 +21,8 @@ import (
 
 type Config struct {
 	ServicePort      int    `default:"3000" split_words:"true"`
+	ServiceSecret    string `required:"true" split_words:"true"`
+	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 	DatabaseHost     string `default:"postgres" split_words:"true"`
 	DatabasePort     int    `default:"5432" split_words:"true"`
 	DatabaseUser     string `default:"postgres" split_words:"true"`
@@ -80,16 +84,30 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Route("/books", func(r chi.Router) {
-		r.Get("/{bookUid}", bookHandler.GetBooksByUUID)
-		r.Get("/", bookHandler.GetBooks)
-		r.Post("/", bookHandler.CreateBook)
-		r.Delete("/{bookUid}", bookHandler.DeleteBook)
+	var tokenAuth = jwtauth.New("HS256", []byte(cfg.ServiceSecret), nil)
+	authHandler := auth.New(tokenAuth)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("services", cfg.ServiceAuthMap))
+		r.Post("/auth", authHandler.Auth)
 	})
 
-	r.Route("/author", func(r chi.Router) {
-		r.Get("/{authorUid}", authorHandler.GetAuthor)
-		r.Get("/{authorUid}/books", authorHandler.GetAuthorBooks)
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
+
+		r.Route("/books", func(r chi.Router) {
+			r.Get("/{bookUid}", bookHandler.GetBooksByUUID)
+			r.Get("/", bookHandler.GetBooks)
+			r.Post("/", bookHandler.CreateBook)
+			r.Delete("/{bookUid}", bookHandler.DeleteBook)
+		})
+
+		r.Route("/author", func(r chi.Router) {
+			r.Get("/{authorUid}", authorHandler.GetAuthor)
+			r.Get("/{authorUid}/books", authorHandler.GetAuthorBooks)
+		})
+
 	})
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)

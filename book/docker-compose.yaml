@@ -17,6 +17,8 @@ services:
     environment:
       DATABASE_PASSWORD: admin
       SERVICE_PORT: 3000
+      SERVICE_AUTH_MAP: "service:pass"
+      SERVICE_SECRET: secret
     ports:
       - "3000:3000"
     depends_on:
