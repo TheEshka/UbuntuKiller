@@ -1,6 +1,7 @@
 package main
 
 import (
+	"book/internal/handler/author"
 	"book/internal/handler/book"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -71,6 +72,7 @@ func main() {
 	db := initDatabase(cfg)
 
 	bookHandler := book.New(db)
+	authorHandler := author.New(db)
 
 	r := chi.NewRouter()
 
@@ -81,6 +83,13 @@ func main() {
 	r.Route("/books", func(r chi.Router) {
 		r.Get("/{bookUid}", bookHandler.GetBooksByUUID)
 		r.Get("/", bookHandler.GetBooks)
+		r.Post("/", bookHandler.CreateBook)
+		r.Delete("/{bookUid}", bookHandler.DeleteBook)
+	})
+
+	r.Route("/author", func(r chi.Router) {
+		r.Get("/{authorUid}", authorHandler.GetAuthor)
+		r.Get("/{authorUid}/books", authorHandler.GetAuthorBooks)
 	})
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)
