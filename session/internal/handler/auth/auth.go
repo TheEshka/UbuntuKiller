@@ -17,6 +17,7 @@ type User struct {
 	Login    string `db:"login" json:"login"`
 	Password string `db:"password" json:",omitempty"`
 	Role     string `db:"role" json:"role"`
+	UserUid	 string `db:"user_uid" json:"user_uid"`
 }
 
 type Handler struct {
