@@ -64,7 +64,7 @@ func (h *Handler) GetLibraryBookUIDS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	common.RespondJSON(ctx, w, http.StatusOK, b)
+	common.RespondJSON(ctx, w, http.StatusOK, map[string][]string{"books": b})
 }
 
 func (h *Handler) ReturnBook(w http.ResponseWriter, r *http.Request) {
@@ -349,7 +349,7 @@ WHERE lb.book_uid = $1
 		return
 	}
 
-	common.RespondJSON(ctx, w, http.StatusOK, b)
+	common.RespondJSON(ctx, w, http.StatusOK, map[string][]bookLibrary{"book_uids": b})
 }
 
 func (h *Handler) TookBooksList(w http.ResponseWriter, r *http.Request) {
@@ -376,5 +376,5 @@ WHERE tb.user_uid = $1
 		return
 	}
 
-	common.RespondJSON(ctx, w, http.StatusOK, b)
+	common.RespondJSON(ctx, w, http.StatusOK, map[string][]string{"books_uid": b})
 }
