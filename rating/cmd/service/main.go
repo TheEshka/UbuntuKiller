@@ -95,7 +95,7 @@ func main() {
 
 	db := initDatabase(cfg)
 
-	libraryHandler := rating.New(db)
+	ratingHandler := rating.New(db)
 
 	r := chi.NewRouter()
 
@@ -118,9 +118,9 @@ func main() {
 
 		r.Route("/rating", func(r chi.Router) {
 			r.Route("/{userUid}", func(r chi.Router) {
-				r.Get("/", libraryHandler.GetUserRating)
-				r.Post("/up", libraryHandler.IncUserRate)
-				r.Post("/down", libraryHandler.DecUserRate)
+				r.Get("/", ratingHandler.GetUserRating)
+				r.Post("/up", ratingHandler.IncUserRate)
+				r.Post("/down", ratingHandler.DecUserRate)
 			})
 		})
 	})
