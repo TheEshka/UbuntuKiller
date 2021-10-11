@@ -122,7 +122,7 @@ func main() {
 				r.Post("/book/{bookUid}", libraryHandler.AddBookToLibrary)        // 11 - Добавить книгу в библиотеку
 				r.Delete("/book/{bookUid}", libraryHandler.DeleteBookFromLibrary)      // 12 - Убрать книгу из библиотеки
 				r.Post("/book/{bookUid}/take", libraryHandler.TakeBook)   // 7 - Взять книгу в библиотеке
-				r.Post("/book/{bookUid}/return", libraryHandler.ReturnBook) // 8 - Вернуть книгу
+				r.Post("/book/{bookUid}/books_return", libraryHandler.ReturnBook) // 8 - Вернуть книгу
 			})
 			r.Get("/book/{bookUid}", libraryHandler.FindBook)       // 6 - Найти книгу в библиотеке
 			r.Get("/user/{userUid}/books", libraryHandler.TookBooksList) // 13 - Посмотреть список взятых книг
