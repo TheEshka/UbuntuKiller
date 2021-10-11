@@ -30,10 +30,10 @@ func (w *Worker) Process(ctx context.Context) error {
 		return err
 	}
 
-	err = consumerGroup.Consume(ctx, []string{w.topic}, w.consumer)
-	if err != nil {
-		return err
+	for {
+		err = consumerGroup.Consume(ctx, []string{w.topic}, w.consumer)
+		if err != nil {
+			return err
+		}
 	}
-
-	return nil
 }
