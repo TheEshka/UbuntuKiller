@@ -1,0 +1,31 @@
+name: Build project
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "kr-controlservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: library
+
+      # TODO Build projects
+      # TODO deploy
+      # - name: Run API Tests
+      #  id: run-newman
+      #  uses: anthonyvscode/newman-action@v1
+      #  with:
+      #    collection: postman/postman-collection.json
+      #    environment: postman/postman-heroku-environment.json
+      #    delayRequest: 50
+      #    reporters: cli
