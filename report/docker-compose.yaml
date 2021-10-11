@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper
+    environment:
+      ZOO_AUTOPURGE_INTERVAL: 1
+      ZOO_LISTEN_ALLIPS_ENABLED: "yes"
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    ports:
+      - "2181:2181"
+  kafka:
+    image: bitnami/kafka
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_TLS_CLIENT_AUTH: none
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: CLIENT://:9092,EXTERNAL://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: CLIENT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    depends_on:
+      - zookeeper
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: admin
+      PGDATA: /var/lib/postgresql-novolume/data
+      POSTGRES_DB: report
+    volumes:
+      - ./deployments/postgres/001-init.sql:/docker-entrypoint-initdb.d/001-init.sql
+    ports:
+      - "5432:5432"
+  service:
+    build:
+      context: .
+    environment:
+      DATABASE_PASSWORD: admin
+      SERVICE_PORT: 3000
+      SERVICE_AUTH_MAP: "service:pass"
+      SERVICE_SECRET: secret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - kafka
