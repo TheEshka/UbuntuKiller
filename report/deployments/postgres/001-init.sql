@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS genres;
+DROP TABLE IF EXISTS returns;
+
 CREATE TABLE genres (
     id serial PRIMARY KEY,
     genre TEXT NOT NULL

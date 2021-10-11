@@ -24,11 +24,11 @@ type Config struct {
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 
-	DatabaseHost     string `default:"ec2-52-209-171-51.eu-west-1.compute.amazonaws.com" split_words:"true"`
+	DatabaseHost     string `default:"postgres" split_words:"true"`
 	DatabasePort     int    `default:"5432" split_words:"true"`
-	DatabaseUser     string `default:"gmdbadwdavugqv" split_words:"true"`
+	DatabaseUser     string `default:"postgres" split_words:"true"`
 	DatabasePassword string `split_words:"true"`
-	DatabaseName     string `default:"dbsa8lnk31u8fj" split_words:"true"`
+	DatabaseName     string `default:"rating" split_words:"true"`
 
 	DatabaseUrl		string  `split_words:"true"`
 }
@@ -76,7 +76,6 @@ func initDatabase(cfg Config) *sqlx.DB {
 	}
 	requests := strings.Split(string(initSql), ";")
 	for _, request := range requests {
-		println(request)
 		_, err := db.DB.Exec(request)
 		if err != nil {
 			log.Fatalf("failed to init database: %v\n", err)

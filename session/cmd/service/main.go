@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"session/internal/handler/auth"
+	"strings"
 	"time"
 
-	"github.com/antelman107/net-wait-go/wait"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
@@ -18,36 +19,44 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"3000" split_words:"true"`
+	ServicePort      int    `default:"3000" envconfig:"port"`
+	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 	ServiceSecret    string `required:"true" split_words:"true"`
+
 	DatabaseHost     string `default:"postgres" split_words:"true"`
 	DatabasePort     int    `default:"5432" split_words:"true"`
 	DatabaseUser     string `default:"postgres" split_words:"true"`
-	DatabasePassword string `required:"true" split_words:"true"`
-	DatabaseName     string `default:"accounts" split_words:"true"`
+	DatabasePassword string `split_words:"true"`
+	DatabaseName     string `default:"control" split_words:"true"`
+
+	DatabaseUrl		string  `split_words:"true"`
 }
 
 func initDatabase(cfg Config) *sqlx.DB {
-	if !wait.New(
-		wait.WithProto("tcp"),
-		wait.WithWait(200*time.Millisecond),
-		wait.WithBreak(50*time.Millisecond),
-		wait.WithDeadline(15*time.Second),
-		wait.WithDebug(true),
-	).Do([]string{fmt.Sprintf("%s:%d", cfg.DatabaseHost, cfg.DatabasePort)}) {
-		log.Fatal("timeout waiting for database")
-	}
+	//if !wait.New(
+	//	wait.WithProto("tcp"),
+	//	wait.WithWait(200*time.Millisecond),
+	//	wait.WithBreak(50*time.Millisecond),
+	//	wait.WithDeadline(15*time.Second),
+	//	wait.WithDebug(true),
+	//).Do([]string{fmt.Sprintf("%s:%d", cfg.DatabaseHost, cfg.DatabasePort)}) {
+	//	log.Fatal("timeout waiting for database")
+	//}
 
-	connConfig, err := pgx.ParseConfig(
-		fmt.Sprintf(
-			"postgres://%s:%s@%s:%d/%s",
+	var configStr string
+	if cfg.DatabaseUrl == "" {
+		configStr = fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 			cfg.DatabaseUser,
 			cfg.DatabasePassword,
 			cfg.DatabaseHost,
 			cfg.DatabasePort,
 			cfg.DatabaseName,
-		),
-	)
+		)
+	} else {
+		configStr = cfg.DatabaseUrl
+	}
+
+	connConfig, err := pgx.ParseConfig(configStr)
 	if err != nil {
 		log.Fatalf("failed to parse pgx config: %v\n", err)
 	}
@@ -60,6 +69,17 @@ func initDatabase(cfg Config) *sqlx.DB {
 		log.Fatalf("failed to connect to database: %v\n", err)
 	}
 
+	initSql, err := ioutil.ReadFile("./deployments/postgres/001-init.sql")
+	if err != nil {
+		log.Fatalf("failed to init database: %v\n", err)
+	}
+	requests := strings.Split(string(initSql), ";")
+	for _, request := range requests {
+		_, err := db.DB.Exec(request)
+		if err != nil {
+			log.Fatalf("failed to init database: %v\n", err)
+		}
+	}
 	return db
 }
 
