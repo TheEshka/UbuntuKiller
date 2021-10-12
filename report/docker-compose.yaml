@@ -43,6 +43,9 @@ services:
       SERVICE_PORT: 3000
       SERVICE_AUTH_MAP: "service:pass"
       SERVICE_SECRET: secret
+      KAFKA_CONN_STRING: glider-02.srvs.cloudkafka.com:9094,glider-03.srvs.cloudkafka.com:9094,glider-01.srvs.cloudkafka.com:9094
+    volumes:
+      - ./deployments/kafkaCA.pem:/app/kafkaCA.pem
     ports:
       - "3000:3000"
     depends_on:
