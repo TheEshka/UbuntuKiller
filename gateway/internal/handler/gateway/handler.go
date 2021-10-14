@@ -137,19 +137,22 @@ func (h *Handler) interServiceAuth(host string, r *http.Request) error {
 
 func (h *Handler) ProxyHandler(host string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r.URL.Host = host
-		r.URL.Scheme = h.services.Scheme
-		r.RequestURI = ""
+		//r.URL.Host = host
+		//r.URL.Scheme = h.services.Scheme
+		//r.RequestURI = ""
+		path := fmt.Sprintf("%s://%s%s", h.services.Scheme, host, r.URL.Path)
+		req, _ := http.NewRequest(r.Method, path, r.Body)
+		copyHeader(req.Header, r.Header)
 
 		if host != h.services.SessionService {
-			err := h.interServiceAuth(host, r)
+			err := h.interServiceAuth(host, req)
 			if err != nil {
 				common.RespondError(nil, w, http.StatusInternalServerError, err)
 				return
 			}
 		}
 
-		resp, err := h.client.Do(r)
+		resp, err := h.client.Do(req)
 		if err != nil {
 			common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error requesting %s", r.URL.String())))
 			return
