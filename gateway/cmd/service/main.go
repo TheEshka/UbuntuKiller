@@ -9,7 +9,6 @@ import (
 	"github.com/Shopify/sarama"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -35,24 +34,12 @@ type Config struct {
 
 func initKafka(cfg Config) sarama.Client {
 	addresses := strings.Split(cfg.CloudkarafkaBrokers, ",")
-	//for _, address := range addresses {
-	//	hostPort := strings.Split(address, ":")
-	//	if !wait.New(
-	//		wait.WithProto("tcp"),
-	//		wait.WithWait(200*time.Millisecond),
-	//		wait.WithBreak(50*time.Millisecond),
-	//		wait.WithDeadline(15*time.Second),
-	//		wait.WithDebug(true),
-	//	).Do([]string{fmt.Sprintf("%s:%s", hostPort[0], hostPort[1])}) {
-	//		log.Fatal("timeout waiting for kafka")
-	//	}
-	//}
 
-	caCert, err := os.ReadFile("../gateway/deployments/kafkaCA.pem")
-	if err != nil {
-		log.Fatal(err)
-	}
-	//qwe := []byte(cfg.CloudkarafkaCa)
+	//caCert, err := os.ReadFile("../gateway/deployments/kafkaCA.pem")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	caCert := []byte(cfg.CloudkarafkaCa)
 
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
@@ -135,8 +122,11 @@ func main() {
 					r.Post("/book/{bookUid}/books_return", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 8 - Вернуть книгу
 				})
 			})
-			r.Get("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))       // 6 - Найти книгу в библиотеке
-			//r.Get("/user/{userUid}/books", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 13 - Посмотреть список взятых книг
+			r.Group(func(r chi.Router) {
+				r.Use(gatewayHandler.AuthChecker)
+				r.Get("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))       // 6 - Найти книгу в библиотеке
+				r.Get("/user/{userUid}/books", gatewayHandler.TakenBooks) // 13 - Посмотреть список взятых книг
+			})
 		})
 	})
 

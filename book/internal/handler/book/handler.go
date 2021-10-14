@@ -38,7 +38,7 @@ func (h *Handler) GetBooksByUUID(w http.ResponseWriter, r *http.Request) {
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	query := psql.Select("b.name name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)").Where(sq.Eq{"b.book_uid": bookUUID}, bookUUID)
+	query := psql.Select("b.name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)").Where(sq.Eq{"b.book_uid": bookUUID}, bookUUID)
 	q, args, err := query.ToSql()
 	if err != nil {
 		common.RespondError(ctx, w, http.StatusInternalServerError, err)
@@ -46,7 +46,7 @@ func (h *Handler) GetBooksByUUID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var b Book
-	if err = h.db.GetContext(ctx, &b, q, args); err == pgx.ErrNoRows {
+	if err = h.db.GetContext(ctx, &b, q, args...); err == pgx.ErrNoRows {
 		common.Respond(ctx, w, http.StatusNotFound)
 		return
 	} else if err != nil {

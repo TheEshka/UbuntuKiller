@@ -21,7 +21,7 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"3000" envconfig:"port"`
+	ServicePort      int    `default:"9112" envconfig:"port"`
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 

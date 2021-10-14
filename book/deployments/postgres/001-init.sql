@@ -25,12 +25,14 @@ CREATE TABLE books (
 
 INSERT INTO authors(id, name, surname, description) VALUES
 (1, 'Sanya', 'Pushkin', 'Russian author'),
-(2, 'Misha', NULL, NULL);
+(2, 'Misha', 'Ustinsliy', 'Unknown author from 23 century');
 
 INSERT INTO genres(id, name) VALUES
 (1, 'Novel'),
 (2, 'Detective');
 
 INSERT INTO books(book_uid, name, author_id, genre_id) VALUES
-('006ca255-f5e9-4153-9423-2ac188512e70'::uuid, 'Gold petuh', 1, 1),
-('08a31c8e-1a2c-4bd2-b87b-632377136d83'::uuid, 'Dub', 2, 2);
+('006ca255-f5e9-4153-9423-2ac188512e70'::uuid, 'EUGENIY ONEGIN', 1, 1),
+('08a31c8e-1a2c-4bd2-b87b-632377136d83'::uuid, 'Dub', 1, 2),
+('22a31c8e-1a2c-4bd2-b87b-632377136d83'::uuid, 'Luna', 2, 2),
+('111ca255-f5e9-4153-9423-2ac188512e70'::uuid, 'Goblin peshery', 2, 2);

@@ -12,61 +12,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-#      - name: library_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-libraryservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: library
-#
-#      - name: book_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-bookservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: book
-#
-#      - name: control_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-controlservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: control
-#
-#      - name: rating_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-ratingservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: rating
-#
-#      - name: sessions_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-sessionservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: session
+      - name: library_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-libraryservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: library
+
+      - name: book_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-bookservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: book
+
+      - name: control_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-controlservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: control
+
+      - name: rating_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-ratingservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: rating
+
+      - name: sessions_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-sessionservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: session
 
       - name: report_service deplay
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
           heroku_app_name: "kr-reportservice"
           heroku_email: "ya.the.eska@gmail.com"
           appdir: report
 
-#      - name: gateway deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-gateway"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: gateway
+      - name: gateway deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ea6fe69b-9eab-4c1f-8376-f79fc4f87c3a
+          heroku_app_name: "kr-gateway"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: gateway
 
       - name: Run API Tests
         id: run-newman
