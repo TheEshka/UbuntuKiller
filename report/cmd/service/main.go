@@ -9,7 +9,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
-	"os"
 	"report/internal/common"
 	"report/internal/worker"
 	"report/internal/worker/books_genre"
@@ -25,7 +24,7 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"9116" split_words:"true"`
+	ServicePort      int    `default:"9117" envconfig:"port"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 
@@ -104,11 +103,11 @@ func initKafka(cfg Config) sarama.Client {
 	//	}
 	//}
 
-	caCert, err := os.ReadFile("../report/deployments/kafkaCA.pem")
-	if err != nil {
-		log.Fatal(err)
-	}
-	//qwe := []byte(cfg.CloudkarafkaCa)
+	//caCert, err := os.ReadFile("../report/deployments/kafkaCA.pem")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	caCert := []byte(cfg.CloudkarafkaCa)
 
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
