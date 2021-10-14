@@ -1,0 +1,606 @@
+{
+  "info": {
+    "_postman_id": "11b3e2be-dd4b-4320-83ea-fdec3e7773f3",
+    "name": "gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "session_FailAuth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "failuser",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "libpass",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{session_service}}/auth",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "auth"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "session_AuthAdmin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.collectionVariables.set(\"token\", pm.response.json()['token']);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "libpass",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "misha",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{session_service}}/auth",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "auth"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "session_Verify",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{session_service}}/verify",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "verify"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_CreateUsers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"login\": \"test_login\",\n    \"password\": \"secret\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/users",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_GetUsers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\": \"array\",",
+              "        \"items\":{  ",
+              "            \"type\":\"object\",",
+              "            \"properties\": {",
+              "                \"login\": {\"type\":\"string\"},",
+              "                \"role\": {\"type\":\"string\"},",
+              "                \"user_uid\": {\"type\":\"string\"}",
+              "            }",
+              "        },",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{gateway}}/users",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "session_AuthUser",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.collectionVariables.set(\"token\", pm.response.json()['token']);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "secret",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "test_login",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{session_service}}/auth",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "auth"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_GetUserFromUser",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 403\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{session_service}}/users",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "session_AuthAdmin2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.collectionVariables.set(\"token\", pm.response.json()['token']);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "libpass",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "misha",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{session_service}}/auth",
+          "host": [
+            "{{session_service}}"
+          ],
+          "path": [
+            "auth"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_DeleteUser",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"login\": \"test_login\",\n    \"password\": \"secret\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/users",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "LibraryBookTake_NoAuth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"user_uid\": \"111ca255-f5e9-4153-9423-2ac188512e70\",\n    \"status\": \"used\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/library/006ca255-f5e9-4153-9423-2ac188512e70/book/111ca255-f5e9-4153-9423-2ac188512e70/take",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "006ca255-f5e9-4153-9423-2ac188512e70",
+            "book",
+            "111ca255-f5e9-4153-9423-2ac188512e70",
+            "take"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "LibraryBookTake_WithAuth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"user_uid\": \"111ca255-f5e9-4153-9423-2ac188512e70\",\n    \"status\": \"used\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/library/006ca255-f5e9-4153-9423-2ac188512e70/book/111ca255-f5e9-4153-9423-2ac188512e70/take",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "006ca255-f5e9-4153-9423-2ac188512e70",
+            "book",
+            "111ca255-f5e9-4153-9423-2ac188512e70",
+            "take"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "LibraryBookReturn",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"user_uid\": \"111ca255-f5e9-4153-9423-2ac188512e70\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/library/006ca255-f5e9-4153-9423-2ac188512e70/book/111ca255-f5e9-4153-9423-2ac188512e70/books_return",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "006ca255-f5e9-4153-9423-2ac188512e70",
+            "book",
+            "111ca255-f5e9-4153-9423-2ac188512e70",
+            "books_return"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

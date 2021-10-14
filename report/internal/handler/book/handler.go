@@ -1,13 +1,13 @@
 package book
 
 import (
-	"book/internal/common"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+	"report/internal/common"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"

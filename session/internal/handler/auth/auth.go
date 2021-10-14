@@ -88,7 +88,7 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	getUsersQuery := `
-SELECT login, role FROM accounts
+SELECT login, role, user_uid FROM accounts
 `
 
 	var users []User
@@ -169,6 +169,53 @@ INSERT INTO accounts(login, password) VALUES ($1, crypt($2, gen_salt('bf')))
 	}
 
 	common.Respond(ctx, w, http.StatusCreated)
+}
+
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	_, claims, err := tokenFromContext(ctx)
+	if err != nil {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "failed to get jwt token"))
+		return
+	}
+
+	role, ok := claims["role"]
+	if !ok {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "user role not found"))
+		return
+	}
+
+	roleString := role.(string)
+	if roleString != "admin" {
+		common.Respond(ctx, w, http.StatusForbidden)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "failed to parse body"))
+		return
+	}
+
+	var user User
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "failed to unmarshall body"))
+		return
+	}
+
+	createUserQuery := `
+DELETE FROM accounts WHERE login = $1
+`
+
+	_, err = h.db.ExecContext(ctx, createUserQuery, user.Login)
+	if err != nil {
+		common.RespondError(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "failed to query create user"))
+		return
+	}
+
+	common.Respond(ctx, w, http.StatusNoContent)
 }
 
 func (h *Handler) Verify(w http.ResponseWriter, r *http.Request) {

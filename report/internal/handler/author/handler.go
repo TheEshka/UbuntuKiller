@@ -1,13 +1,13 @@
 package author
 
 import (
-	"book/internal/common"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"net/http"
+	"report/internal/common"
 )
 
 type Book struct {

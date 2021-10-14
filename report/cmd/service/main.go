@@ -17,7 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/antelman107/net-wait-go/wait"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v4"
@@ -26,18 +25,22 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"3000" split_words:"true"`
+	ServicePort      int    `default:"9116" split_words:"true"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
+
 	DatabaseHost     string `default:"postgres" split_words:"true"`
 	DatabasePort     int    `default:"5432" split_words:"true"`
 	DatabaseUser     string `default:"postgres" split_words:"true"`
-	DatabasePassword string `required:"true" split_words:"true"`
-	DatabaseName     string `default:"report" split_words:"true"`
-	KafkaConnString        string `default:"kafka:9092" split_words:"true"`
+	DatabasePassword string `split_words:"true"`
+	DatabaseName     string `default:"books" split_words:"true"`
+
+	DatabaseUrl		string  `split_words:"true"`
+
+	CloudkarafkaBrokers        string `default:"kafka:9092" split_words:"true"`
 	KafkaSaslLogin   string `default:"njeb2phw" split_words:"true"`
-	KafkaSaslPassword string `required:"true" split_words:"true"`
-	KafkaTlsCaPath    string `default:"/app/kafkaCA.pem" split_words:"true"`
+	CloudkarafkaPassword string `required:"true" split_words:"true"`
+	CloudkarafkaCa    string `split_words:"true"`
 	KafkaGenresTopic string `default:"njeb2phw-books-genres" split_words:"true"`
 	KafkaReturnsTopic string `default:"njeb2phw-books-returns" split_words:"true"`
 	KafkaGenresDlqTopic string `default:"njeb2phw-books-genres-dlq" split_words:"true"`
@@ -47,26 +50,30 @@ type Config struct {
 }
 
 func initDatabase(cfg Config) *sqlx.DB {
-	if !wait.New(
-		wait.WithProto("tcp"),
-		wait.WithWait(200*time.Millisecond),
-		wait.WithBreak(50*time.Millisecond),
-		wait.WithDeadline(15*time.Second),
-		wait.WithDebug(true),
-	).Do([]string{fmt.Sprintf("%s:%d", cfg.DatabaseHost, cfg.DatabasePort)}) {
-		log.Fatal("timeout waiting for database")
-	}
+	//if !wait.New(
+	//	wait.WithProto("tcp"),
+	//	wait.WithWait(200*time.Millisecond),
+	//	wait.WithBreak(50*time.Millisecond),
+	//	wait.WithDeadline(15*time.Second),
+	//	wait.WithDebug(true),
+	//).Do([]string{fmt.Sprintf("%s:%d", cfg.DatabaseHost, cfg.DatabasePort)}) {
+	//	log.Fatal("timeout waiting for database")
+	//}
 
-	connConfig, err := pgx.ParseConfig(
-		fmt.Sprintf(
-			"postgres://%s:%s@%s:%d/%s",
+	var configStr string
+	if cfg.DatabaseUrl == "" {
+		configStr = fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 			cfg.DatabaseUser,
 			cfg.DatabasePassword,
 			cfg.DatabaseHost,
 			cfg.DatabasePort,
 			cfg.DatabaseName,
-		),
-	)
+		)
+	} else {
+		configStr = cfg.DatabaseUrl
+	}
+
+	connConfig, err := pgx.ParseConfig(configStr)
 	if err != nil {
 		log.Fatalf("failed to parse pgx config: %v\n", err)
 	}
@@ -83,24 +90,25 @@ func initDatabase(cfg Config) *sqlx.DB {
 }
 
 func initKafka(cfg Config) sarama.Client {
-	addresses := strings.Split(cfg.KafkaConnString, ",")
-	for _, address := range addresses {
-		hostPort := strings.Split(address, ":")
-		if !wait.New(
-			wait.WithProto("tcp"),
-			wait.WithWait(200*time.Millisecond),
-			wait.WithBreak(50*time.Millisecond),
-			wait.WithDeadline(15*time.Second),
-			wait.WithDebug(true),
-		).Do([]string{fmt.Sprintf("%s:%s", hostPort[0], hostPort[1])}) {
-			log.Fatal("timeout waiting for kafka")
-		}
-	}
+	addresses := strings.Split(cfg.CloudkarafkaBrokers, ",")
+	//for _, address := range addresses {
+	//	hostPort := strings.Split(address, ":")
+	//	if !wait.New(
+	//		wait.WithProto("tcp"),
+	//		wait.WithWait(200*time.Millisecond),
+	//		wait.WithBreak(50*time.Millisecond),
+	//		wait.WithDeadline(15*time.Second),
+	//		wait.WithDebug(true),
+	//	).Do([]string{fmt.Sprintf("%s:%s", hostPort[0], hostPort[1])}) {
+	//		log.Fatal("timeout waiting for kafka")
+	//	}
+	//}
 
-	caCert, err := os.ReadFile(cfg.KafkaTlsCaPath)
+	caCert, err := os.ReadFile("../report/deployments/kafkaCA.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
+	//qwe := []byte(cfg.CloudkarafkaCa)
 
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
@@ -115,7 +123,7 @@ func initKafka(cfg Config) sarama.Client {
 	kafkaConfig.Producer.Return.Successes = true
 	kafkaConfig.Net.SASL.Enable = true
 	kafkaConfig.Net.SASL.User = cfg.KafkaSaslLogin
-	kafkaConfig.Net.SASL.Password = cfg.KafkaSaslPassword
+	kafkaConfig.Net.SASL.Password = cfg.CloudkarafkaPassword
 	kafkaConfig.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient { return &common.XDGSCRAMClient{HashGeneratorFcn: common.SHA512} }
 	kafkaConfig.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA512
 	kafkaConfig.Net.SASL.Handshake = true

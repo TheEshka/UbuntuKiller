@@ -1,4 +1,9 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+DROP TABLE IF EXISTS accounts CASCADE;
+DROP TYPE IF EXISTS user_role;
 
 CREATE TYPE user_role AS ENUM ('admin', 'user');
 

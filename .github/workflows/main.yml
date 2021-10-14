@@ -52,27 +52,27 @@ jobs:
           heroku_email: "ya.the.eska@gmail.com"
           appdir: session
 
-#      - name: report_service deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-reportservice"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: report
-#
-#      - name: gateway deplay
-#        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-#        with:
-#          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-#          heroku_app_name: "kr-gateway"
-#          heroku_email: "ya.the.eska@gmail.com"
-#          appdir: gateway
-#
-#       - name: Run API Tests
-#        id: run-newman
-#        uses: anthonyvscode/newman-action@v1
-#        with:
-#          collection: postman/postman-collection.json
-#          environment: postman/postman-heroku-environment.json
-#          delayRequest: 50
-#          reporters: cli
+      - name: report_service deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "kr-reportservice"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: report
+
+      - name: gateway deplay
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "kr-gateway"
+          heroku_email: "ya.the.eska@gmail.com"
+          appdir: gateway
+
+      - name: Run API Tests
+        id: run-newman
+        uses: anthonyvscode/newman-action@v1
+        with:
+          collection: postman/postman-collection.json
+          environment: postman/postman-heroku-environment.json
+          delayRequest: 50
+          reporters: cli

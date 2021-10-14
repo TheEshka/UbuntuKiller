@@ -19,7 +19,7 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"3000" envconfig:"port"`
+	ServicePort      int    `default:"9111" envconfig:"port"`
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 
@@ -110,6 +110,7 @@ func main() {
 	r.Post("/auth", authHandler.Auth)
 	r.Get("/users", authHandler.GetUsers)
 	r.Post("/users", authHandler.CreateUser)
+	r.Delete("/users", authHandler.DeleteUser)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)
 	if err != nil {
