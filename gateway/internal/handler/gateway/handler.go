@@ -21,6 +21,7 @@ type Services struct {
 	SessionService   	string `default:"localhost:9111" split_words:"true"`
 	LibraryService   	string `default:"localhost:9114" split_words:"true"`
 	BookService   	string `default:"localhost:9112" split_words:"true"`
+	ReportService   	string `default:"localhost:9116" split_words:"true"`
 }
 
 type Handler struct {

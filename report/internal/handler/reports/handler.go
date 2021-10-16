@@ -29,7 +29,7 @@ func New(db *sqlx.DB) *Handler {
 func (h *Handler) ReturnsReport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	q := `SELECT user_uid, COUNT(*) on_time_count FROM returns WHERE on_time = TRUE GROUP BY user_uid`
+	q := `SELECT user_uid FROM returns WHERE on_time = TRUE GROUP BY user_uid`
 	var b []StatReturns
 	if err := h.db.GetContext(ctx, &b, q); err == pgx.ErrNoRows {
 		common.Respond(ctx, w, http.StatusNotFound)
@@ -45,7 +45,7 @@ func (h *Handler) ReturnsReport(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GenresReport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	q := `SELECT genre, COUNT(*) count FROM returns WHERE on_time = TRUE GROUP BY user_uid`
+	q := `SELECT genre, COUNT(*) FROM genres GROUP BY genre`
 	var b []StatReturns
 	if err := h.db.GetContext(ctx, &b, q); err == pgx.ErrNoRows {
 		common.Respond(ctx, w, http.StatusNotFound)

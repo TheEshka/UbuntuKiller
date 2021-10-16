@@ -142,6 +142,13 @@ func main() {
 		r.Get("/{authorUid}/books", gatewayHandler.ProxyHandler(hosts.BookService)) // 5 инфа об авторе
 	})
 
+	r.Group(func(r chi.Router) {
+		r.Use(gatewayHandler.AdminChecker)
+		r.Get("/reports/books-return", gatewayHandler.ProxyHandler(hosts.ReportService)) // 15 статистика возврата
+		r.Get("/reports/books-genre", gatewayHandler.ProxyHandler(hosts.ReportService)) // 16 статистика жанров
+	})
+
+
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)
 	if err != nil {
 		log.Fatalf("failed to serve: %v\n", err)

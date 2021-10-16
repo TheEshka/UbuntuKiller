@@ -8,6 +8,7 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/jmoiron/sqlx"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"report/internal/common"
@@ -27,7 +28,7 @@ import (
 )
 
 type Config struct {
-	ServicePort      int    `default:"9117" envconfig:"port"`
+	ServicePort      int    `default:"9116" envconfig:"port"`
 	ServiceSecret    string `required:"true" split_words:"true"`
 	ServiceAuthMap   map[string]string `required:"true" split_words:"true"`
 
@@ -86,6 +87,18 @@ func initDatabase(cfg Config) *sqlx.DB {
 	db, err := sqlx.Connect("pgx", connString)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v\n", err)
+	}
+
+	initSql, err := ioutil.ReadFile("./deployments/postgres/001-init.sql")
+	if err != nil {
+		log.Fatalf("failed to init database: %v\n", err)
+	}
+	requests := strings.Split(string(initSql), ";")
+	for _, request := range requests {
+		_, err := db.DB.Exec(request)
+		if err != nil {
+			log.Fatalf("failed to init database: %v\n", err)
+		}
 	}
 
 	return db
@@ -187,6 +200,12 @@ func main() {
 
 	var tokenAuth = jwtauth.New("HS256", []byte(cfg.ServiceSecret), nil)
 	authHandler := auth.New(tokenAuth)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("services", cfg.ServiceAuthMap))
+		r.Post("/auth", authHandler.Auth)
+	})
+
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.BasicAuth("services", cfg.ServiceAuthMap))
