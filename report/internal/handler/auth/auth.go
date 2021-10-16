@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"book/internal/common"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/pkg/errors"
 	"net/http"
+	"report/internal/common"
 )
 
 type Handler struct {
