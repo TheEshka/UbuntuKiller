@@ -221,3 +221,26 @@ DELETE FROM accounts WHERE login = $1
 func (h *Handler) Verify(w http.ResponseWriter, r *http.Request) {
 	common.Respond(r.Context(), w, http.StatusOK)
 }
+
+func (h *Handler) IsAdminUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	_, claims, err := tokenFromContext(ctx)
+	if err != nil {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "failed to get jwt token"))
+		return
+	}
+
+	role, ok := claims["role"]
+	if !ok {
+		common.RespondError(ctx, w, http.StatusBadRequest, errors.Wrap(err, "user role not found"))
+		return
+	}
+
+	roleString := role.(string)
+	if roleString == "admin" {
+		common.Respond(ctx, w, http.StatusOK)
+	} else {
+		common.Respond(ctx, w, http.StatusForbidden)
+	}
+}

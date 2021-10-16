@@ -14,7 +14,9 @@ import (
 )
 
 type Book struct {
+	BookUid string `json:"book_uid" db:"book_uid"`
 	Name   string `json:"name" db:"name"`
+	AuthorId string `json:"author_id" db:"author_id"`
 	Author string `json:"author" db:"author"`
 	Genre  string `json:"books_genre" db:"books_genre"`
 }
@@ -38,7 +40,7 @@ func (h *Handler) GetBooksByUUID(w http.ResponseWriter, r *http.Request) {
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	query := psql.Select("b.name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)").Where(sq.Eq{"b.book_uid": bookUUID}, bookUUID)
+	query := psql.Select("a.id author_id", "b.book_uid", "b.name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)").Where(sq.Eq{"b.book_uid": bookUUID}, bookUUID)
 	q, args, err := query.ToSql()
 	if err != nil {
 		common.RespondError(ctx, w, http.StatusInternalServerError, err)
@@ -65,7 +67,7 @@ func (h *Handler) GetBooks(w http.ResponseWriter, r *http.Request) {
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	query := psql.Select("b.name name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)")
+	query := psql.Select("a.id author_id", "b.book_uid", "b.name", "concat_ws(' ', a.name, a.surname) author", "g.name books_genre").From("books b").InnerJoin("genres g ON (b.genre_id = g.id)").InnerJoin("authors a ON (b.author_id = a.id)")
 	if bookName != "" {
 		query = query.Where(sq.Eq{"b.name": bookName}, bookName)
 	}

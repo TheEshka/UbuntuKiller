@@ -349,7 +349,7 @@ WHERE lb.book_uid = $1
 		return
 	}
 
-	common.RespondJSON(ctx, w, http.StatusOK, map[string][]bookLibrary{"book_uids": b})
+	common.RespondJSON(ctx, w, http.StatusOK, b)
 }
 
 func (h *Handler) TookBooksList(w http.ResponseWriter, r *http.Request) {

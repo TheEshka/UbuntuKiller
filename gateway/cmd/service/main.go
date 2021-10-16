@@ -104,30 +104,42 @@ func main() {
 		r.Delete("/users", gatewayHandler.ProxyHandler(hosts.SessionService))
 	})
 
-	// to library service
-	r.Group(func(r chi.Router) {
-		r.Route("/library", func(r chi.Router) {
-			r.Route("/{libraryUid}", func(r chi.Router) {
-				//r.Get("/books", gatewayHandler.ProxyHandler(hosts.LibraryService))        // 1 - Список книг в библиотеке
+	r.Route("/library", func(r chi.Router) {
+		r.Route("/{libraryUid}", func(r chi.Router) {
+			r.Get("/books", gatewayHandler.LibBooks)        // 1 - Список книг в библиотеке
 
-				r.Group(func(r chi.Router) {
-					r.Use(gatewayHandler.AdminChecker)
-					r.Post("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))   // 11 - Добавить книгу в библиотеку
-					r.Delete("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 12 - Убрать книгу из библиотеки
-				})
-
-				r.Group(func(r chi.Router) {
-					r.Use(gatewayHandler.AuthChecker)
-					r.Post("/book/{bookUid}/take", gatewayHandler.ProxyHandler(hosts.LibraryService))         // 7 - Взять книгу в библиотеке
-					r.Post("/book/{bookUid}/books_return", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 8 - Вернуть книгу
-				})
+			r.Group(func(r chi.Router) {
+				r.Use(gatewayHandler.AdminChecker)
+				r.Post("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))   // 11 - Добавить книгу в библиотеку
+				r.Delete("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 12 - Убрать книгу из библиотеки
 			})
+
 			r.Group(func(r chi.Router) {
 				r.Use(gatewayHandler.AuthChecker)
-				r.Get("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))       // 6 - Найти книгу в библиотеке
-				r.Get("/user/{userUid}/books", gatewayHandler.TakenBooks) // 13 - Посмотреть список взятых книг
+				r.Post("/book/{bookUid}/take", gatewayHandler.ProxyHandler(hosts.LibraryService))         // 7 - Взять книгу в библиотеке
+				r.Post("/book/{bookUid}/books_return", gatewayHandler.ProxyHandler(hosts.LibraryService)) // 8 - Вернуть книгу
 			})
 		})
+		r.Group(func(r chi.Router) {
+			r.Use(gatewayHandler.AuthChecker)
+			r.Get("/book/{bookUid}", gatewayHandler.ProxyHandler(hosts.LibraryService))       // 6 - Найти книгу в библиотеке
+			r.Get("/user/{userUid}/books", gatewayHandler.TakenBooks) // 13 - Посмотреть список взятых книг
+		})
+	})
+
+	r.Route("/books", func(r chi.Router) {
+		r.Get("/{bookUid}", gatewayHandler.ProxyHandler(hosts.BookService)) // 2 - инфа о книге
+		r.Get("/", gatewayHandler.ProxyHandler(hosts.BookService)) // 3 - поиск по названию книги
+		r.Group(func(r chi.Router) {
+			r.Use(gatewayHandler.AdminChecker)
+			r.Post("/", gatewayHandler.ProxyHandler(hosts.BookService)) // 9 добавить книгу
+			r.Delete("/{bookUid}", gatewayHandler.ProxyHandler(hosts.BookService)) // 10 удалить книгу
+		})
+	})
+
+	r.Route("/author", func(r chi.Router) {
+		r.Get("/{authorUid}", gatewayHandler.ProxyHandler(hosts.BookService)) // 4 - инфа об авторе
+		r.Get("/{authorUid}/books", gatewayHandler.ProxyHandler(hosts.BookService)) // 5 инфа об авторе
 	})
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)

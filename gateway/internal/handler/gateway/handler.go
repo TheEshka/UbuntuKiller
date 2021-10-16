@@ -77,14 +77,15 @@ func (h *Handler) AdminChecker(next http.Handler) http.Handler {
 			return
 		}
 
-		path := fmt.Sprintf("%s://%s/isUserAdmin/%s", h.services.Scheme, h.services.SessionService, token)
-		req, _ := http.NewRequest("POST", path, nil)
+		path := fmt.Sprintf("%s://%s/isAdminUser", h.services.Scheme, h.services.SessionService)
+		req, _ := http.NewRequest("GET", path, nil)
+		req.Header.Add("Authorization", r.Header.Get("Authorization"))
 
-		err := h.interServiceAuth(h.services.SessionService, req)
-		if err != nil {
-			common.RespondError(nil, w, http.StatusInternalServerError, err)
-			return
-		}
+		//err := h.interServiceAuth(h.services.SessionService, req)
+		//if err != nil {
+		//	common.RespondError(nil, w, http.StatusInternalServerError, err)
+		//	return
+		//}
 
 		resp, err := h.client.Do(req)
 		if err != nil {
@@ -94,7 +95,7 @@ func (h *Handler) AdminChecker(next http.Handler) http.Handler {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != 200 {
-			common.RespondError(nil, w, http.StatusForbidden, err)
+			common.RespondError(nil, w, http.StatusForbidden, errors.New("dont have permissions"))
 			return
 		}
 		// Token is authenticated, pass it through
@@ -186,9 +187,10 @@ func (h *Handler) ProxyHandler(host string) http.HandlerFunc {
 }
 
 func (h *Handler) TakenBooks(w http.ResponseWriter, r *http.Request) {
-	r.URL.Host = h.services.LibraryService
-	r.URL.Scheme = h.services.Scheme
-	r.RequestURI = ""
+	path := fmt.Sprintf("%s://%s%s", h.services.Scheme, h.services.LibraryService, r.URL.Path)
+	req, _ := http.NewRequest(r.Method, path, r.Body)
+	copyHeader(req.Header, r.Header)
+
 
 	err := h.interServiceAuth(h.services.LibraryService, r)
 	if err != nil {
@@ -196,7 +198,7 @@ func (h *Handler) TakenBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.client.Do(r)
+	resp, err := h.client.Do(req)
 	if err != nil {
 		common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error requesting %s", r.URL.String())))
 		return
@@ -221,6 +223,7 @@ func (h *Handler) TakenBooks(w http.ResponseWriter, r *http.Request) {
 	uuids := uuidsMap["books_uid"]
 
 	type Book struct {
+		BookUid string `json:"book_uid"`
 		Name   string `json:"name" db:"name"`
 		Author string `json:"author" db:"author"`
 		Genre  string `json:"books_genre" db:"books_genre"`
@@ -253,6 +256,83 @@ func (h *Handler) TakenBooks(w http.ResponseWriter, r *http.Request) {
 			common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
 			return
 		}
+		book.BookUid = bookUid
+		books = append(books, book)
+	}
+	common.RespondJSON(nil, w, http.StatusOK, books)
+}
+
+func (h *Handler) LibBooks(w http.ResponseWriter, r *http.Request) {
+	path := fmt.Sprintf("%s://%s%s", h.services.Scheme, h.services.LibraryService, r.URL.Path)
+	req, _ := http.NewRequest(r.Method, path, r.Body)
+	copyHeader(req.Header, r.Header)
+
+
+	err := h.interServiceAuth(h.services.LibraryService, r)
+	if err != nil {
+		common.RespondError(nil, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	resp, err := h.client.Do(req)
+	if err != nil {
+		common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error requesting %s", r.URL.String())))
+		return
+	}
+
+	defer resp.Body.Close()
+
+	copyHeader(w.Header(), resp.Header)
+
+	payload, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
+		return
+	}
+
+	var uuidsMap map[string][]string
+	err = json.Unmarshal(payload, &uuidsMap)
+	if err != nil {
+		common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
+		return
+	}
+	uuids := uuidsMap["books"]
+
+	type Book struct {
+		BookUid string `json:"book_uid"`
+		Name   string `json:"name" db:"name"`
+		Author string `json:"author" db:"author"`
+		Genre  string `json:"books_genre" db:"books_genre"`
+	}
+	var books []Book
+	for _, bookUid := range uuids {
+		path := fmt.Sprintf("%s://%s/books/%s", h.services.Scheme, h.services.BookService, bookUid)
+		req, _ := http.NewRequest("GET", path, nil)
+		err := h.interServiceAuth(h.services.LibraryService, req)
+		if err != nil {
+			common.RespondError(nil, w, http.StatusInternalServerError, err)
+			return
+		}
+		res, err := h.client.Do(req)
+		if err != nil {
+			common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
+			return
+		}
+		defer res.Body.Close()
+
+		payload, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
+			return
+		}
+
+		var book Book
+		err = json.Unmarshal(payload, &book)
+		if err != nil {
+			common.RespondError(nil, w, http.StatusInternalServerError, errors.New(fmt.Sprintf("Internal error reading from %s", r.URL.String())))
+			return
+		}
+		book.BookUid = bookUid
 		books = append(books, book)
 	}
 	common.RespondJSON(nil, w, http.StatusOK, books)

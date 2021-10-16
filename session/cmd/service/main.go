@@ -109,6 +109,7 @@ func main() {
 
 	r.Post("/auth", authHandler.Auth)
 	r.Get("/users", authHandler.GetUsers)
+	r.Get("/isAdminUser", authHandler.IsAdminUser)
 	r.Post("/users", authHandler.CreateUser)
 	r.Delete("/users", authHandler.DeleteUser)
 

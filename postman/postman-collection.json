@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "11b3e2be-dd4b-4320-83ea-fdec3e7773f3",
+    "_postman_id": "f4a3d434-df60-4a9c-a4f7-fb40d4961433",
     "name": "gateway",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -449,7 +449,7 @@
       "response": []
     },
     {
-      "name": "LibraryBookTake_NoAuth",
+      "name": "gateway_LibraryBookTake_NoAuth",
       "event": [
         {
           "listen": "test",
@@ -499,7 +499,7 @@
       "response": []
     },
     {
-      "name": "LibraryBookTake_WithAuth",
+      "name": "gateway_LibraryBookTake_WithAuth",
       "event": [
         {
           "listen": "test",
@@ -548,7 +548,7 @@
       "response": []
     },
     {
-      "name": "LibraryBookReturn",
+      "name": "gateway_LibraryBookReturn",
       "event": [
         {
           "listen": "test",
@@ -591,6 +591,395 @@
             "book",
             "111ca255-f5e9-4153-9423-2ac188512e70",
             "books_return"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_GetLibraryBooks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\": \"array\",",
+              "        \"items\":{  ",
+              "            \"type\":\"object\",",
+              "            \"properties\": {",
+              "                \"name\": {\"type\":\"string\"},",
+              "                \"author\": {\"type\":\"string\"},",
+              "                \"books_genre\": {\"type\":\"string\"}",
+              "            }",
+              "        },",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{gateway}}/library/006ca255-f5e9-4153-9423-2ac188512e70/books",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "006ca255-f5e9-4153-9423-2ac188512e70",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_TakenBooks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\": \"array\",",
+              "        \"items\":{  ",
+              "            \"type\":\"object\",",
+              "            \"properties\": {",
+              "                \"name\": {\"type\":\"string\"},",
+              "                \"author\": {\"type\":\"string\"},",
+              "                \"books_genre\": {\"type\":\"string\"}",
+              "            }",
+              "        },",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{gateway}}/library/user/bc39ffba-80b4-49fb-8101-35f514a438e9/books",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "user",
+            "bc39ffba-80b4-49fb-8101-35f514a438e9",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_GetBooks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\": \"array\",",
+              "        \"items\":{  ",
+              "            \"type\":\"object\",",
+              "            \"properties\": {",
+              "                \"name\": {\"type\":\"string\"},",
+              "                \"author\": {\"type\":\"string\"},",
+              "                \"books_genre\": {\"type\":\"string\"}",
+              "            }",
+              "        },",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{gateway}}/library/006ca255-f5e9-4153-9423-2ac188512e70/books",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "library",
+            "006ca255-f5e9-4153-9423-2ac188512e70",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_BooksQuery",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\": \"array\",",
+              "        \"items\":{  ",
+              "            \"type\":\"object\",",
+              "            \"properties\": {",
+              "                \"name\": {\"type\":\"string\"},",
+              "                \"author\": {\"type\":\"string\"},",
+              "                \"books_genre\": {\"type\":\"string\"}",
+              "            }",
+              "        },",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{gateway}}/books/",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "books",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_BooksInfo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "",
+              "    var schema = {",
+              "        \"type\":\"object\",",
+              "        \"properties\": {",
+              "            \"name\": {\"type\":\"string\"},",
+              "            \"author\": {\"type\":\"string\"},",
+              "            \"books_genre\": {\"type\":\"string\"}",
+              "        }",
+              "    };",
+              "",
+              "    var jsonData = pm.response.json();",
+              "",
+              "    pm.test('Schema is valid', function () {",
+              "        pm.expect(tv4.validate(jsonData, schema)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{gateway}}/books/006ca255-f5e9-4153-9423-2ac188512e70",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "books",
+            "006ca255-f5e9-4153-9423-2ac188512e70"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_CreateBook",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "pm.environment.set(\"createdBookID\", jsonData[\"bookUid\"]);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Skazka o care\",\n    \"books_genre\": \"Novel\",\n    \"author\": \"MishaUstinsliy\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/books",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gateway_DeleteBook",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "BEARER: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImdldGF3YXkifQ.azdEa63DRr_HBw54S-6WHGLqUShL17cegFspiZOWAOk",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Skazka o care\",\n    \"books_genre\": \"Novel\",\n    \"author\": \"MishaUstinsliy\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{gateway}}/books/{{createdBookID}}",
+          "host": [
+            "{{gateway}}"
+          ],
+          "path": [
+            "books",
+            "{{createdBookID}}"
           ]
         }
       },

@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: library_service deplay
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
@@ -67,6 +68,10 @@ jobs:
           heroku_app_name: "kr-gateway"
           heroku_email: "ya.the.eska@gmail.com"
           appdir: gateway
+
+      - name: Sleep for 15 seconds
+        run: sleep 15s
+        shell: bash
 
       - name: Run API Tests
         id: run-newman

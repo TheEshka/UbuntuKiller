@@ -6,10 +6,13 @@ import (
 	"crypto/x509"
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
 	"report/internal/common"
+	"report/internal/handler/auth"
+	"report/internal/handler/reports"
 	"report/internal/worker"
 	"report/internal/worker/books_genre"
 	"report/internal/worker/books_return"
@@ -174,11 +177,32 @@ func main() {
 		}
 	}()
 
+	handler := reports.New(db)
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+
+	var tokenAuth = jwtauth.New("HS256", []byte(cfg.ServiceSecret), nil)
+	authHandler := auth.New(tokenAuth)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.BasicAuth("services", cfg.ServiceAuthMap))
+		r.Post("/auth", authHandler.Auth)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
+
+		r.Route("/reports", func(r chi.Router) {
+			r.Get("/books-return", handler.ReturnsReport)
+			r.Get("/books-genre", handler.GenresReport)
+		})
+
+	})
 
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.ServicePort), r)
